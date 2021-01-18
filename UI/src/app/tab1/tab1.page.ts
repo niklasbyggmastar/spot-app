@@ -12,17 +12,16 @@ import { Router, NavigationExtras } from '@angular/router';
 })
 export class Tab1Page {
 
-    private title: string = "Spots nearby";
-    private currentLocation = {
+    public title: string = "Spots nearby";
+    public currentLocation = {
         latitude: "",
         longitude: ""
     };
-    private allSpots: Array<Spot>;
+    public allSpots: Array<Spot>;
 
-    constructor(private http: HttpClient, private geo: Geolocation, private router: Router) { }
+    constructor(private http: HttpClient, public geo: Geolocation, private router: Router) { }
 
     async ngOnInit() {
-        console.log(environment.apiKey);
         await this.getCurrentLocationAndSpotList();
 
         for (let spot of this.allSpots) {
@@ -46,6 +45,17 @@ export class Tab1Page {
             console.warn(error);
         });
 
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const pos = {
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude,
+                };
+                console.log(pos);
+            })
+        }
+
         return this.http.get(environment.storageAccountUrl).toPromise().then((res:any) => {
             console.log(res);
             this.allSpots = res.value;
@@ -65,11 +75,12 @@ export class Tab1Page {
     }
 
     private getDistanceToSpot(spot: Spot) {
+        console.log(this.currentLocation);
         console.log(spot.lat, spot.lon);
         const data = [
             {
                 Latitude: this.currentLocation.latitude,
-                Longitude: this.currentLocation.latitude
+                Longitude: this.currentLocation.longitude
             },
             {
                 Latitude: spot.lat,
@@ -77,7 +88,7 @@ export class Tab1Page {
             }
         ];
 
-        this.http.post(`${environment.localApiUrl}/distance`, data).toPromise().then((res:any) => {
+        this.http.post(`${environment.apiUrl}/distance`, data).toPromise().then((res:any) => {
             console.log(res);
             const distance = (res.rows[0].elements[0].distance.value/1000).toFixed(2);
             console.log(distance);

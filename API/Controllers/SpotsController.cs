@@ -35,10 +35,10 @@ namespace SpotAppApi.Controllers
             _logger.LogInformation("LOLOL1");
             try
             {
-                _logger.LogInformation("LOLOL");
+                _logger.LogInformation($"LOCATION {coordinates[0].Latitude}, {coordinates[0].Longitude}");
                 var http = new HttpClient();
                 var result = await http.GetAsync(
-                    $"https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={coordinates[0].Latitude},{coordinates[0].Longitude}&destinations={coordinates[1].Latitude},{coordinates[1].Longitude}&key=AIzaSyB9KD5O-YQhklsQwQTE_AFzg4a1nTDKTNU").ConfigureAwait(false);
+                    $"https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={coordinates[0].Latitude},{coordinates[0].Longitude}&destinations={coordinates[1].Latitude},{coordinates[1].Longitude}&key={Environment.GetEnvironmentVariable("API_KEY")}").ConfigureAwait(false);
 
                 _logger.LogInformation(result.StatusCode.ToString());
                 var data = await result.Content.ReadAsStringAsync();
