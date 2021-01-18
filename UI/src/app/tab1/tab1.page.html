@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
     <ion-toolbar>
         <ion-title>
-            {{title}}
+            {{title}} - Current location: {{currentLocation.latitude}}, {{currentLocation.longitude}}
         </ion-title>
     </ion-toolbar>
 </ion-header>
@@ -14,14 +14,13 @@
     </ion-header>
 
     <ion-list>
-        <!--<ion-list-header>{{ title }}</ion-list-header>-->
-        {{latitude}}, {{longitude}}
-        <ion-item>
+        <ion-item *ngFor="let spot of allSpots" (click)="openSpotDetails(spot.RowKey)">
             <ion-avatar slot="start">
                 <img src="assets/icon/favicon.png" />
             </ion-avatar>
             <ion-label>
-                <h2>Skatepark 1</h2>
+                <h2>{{spot.name}}</h2>
+                <p *ngIf="spot.distance">{{spot.distance}} km</p>
             </ion-label>
         </ion-item>
     </ion-list>
