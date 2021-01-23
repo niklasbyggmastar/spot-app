@@ -1,26 +1,44 @@
 <ion-header [translucent]="true">
     <ion-toolbar>
         <ion-title>
-            {{title}} - Current location: {{currentLocation.latitude}}, {{currentLocation.longitude}}
+            {{title}}
         </ion-title>
     </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" *ngIf="!isLoading && errorMessage != null">
+    {{errorMessage}}
+</ion-content>
+
+<div *ngIf="isLoading" class="loadingDiv">
+    <ion-spinner name="bubbles" class="loadingMargin"></ion-spinner>
+</div>
+
+<ion-content [fullscreen]="true" *ngIf="!isLoading && errorMessage == null">
     <ion-header collapse="condense">
         <ion-toolbar>
-            <ion-title size="large">{{title}}</ion-title>
+            <ion-title size="large">{{title}}</ion-title>            
         </ion-toolbar>
     </ion-header>
 
     <ion-list>
+        <small>
+            Current location: 
+            <a href="https://www.google.com/maps/place/{{currentLocation.latitude}},{{currentLocation.longitude}}">{{currentLocation.latitude}}, {{currentLocation.longitude}}</a>
+        </small>
         <ion-item *ngFor="let spot of allSpots" (click)="openSpotDetails(spot.RowKey)">
             <ion-avatar slot="start">
-                <img src="assets/icon/favicon.png" />
+                <img src="assets/img/{{spot.type}}.png" />
             </ion-avatar>
+
             <ion-label>
                 <h2>{{spot.name}}</h2>
+                <p>
+                    {{spot.type | titlecase}}
+                    <span *ngIf="spot.description"> - {{spot.description}}</span>
+                </p>
                 <p *ngIf="spot.distance">{{spot.distance}} km</p>
+                <ion-spinner *ngIf="!spot.distance && spot.isLoading" name="dots" class="loadingMargin"></ion-spinner>
             </ion-label>
         </ion-item>
     </ion-list>

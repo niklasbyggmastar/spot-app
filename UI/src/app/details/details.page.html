@@ -1,1 +1,19 @@
-DETAILS LOL
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-title>
+            <a [routerLink]="['/']">Back</a> {{id}}
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" *ngIf="!isLoading && errorMessage != null">
+    {{errorMessage}}
+</ion-content>
+
+<div *ngIf="isLoading" class="loadingDiv">
+    <ion-spinner name="bubbles" class="loadingMargin"></ion-spinner>
+</div>
+
+<ion-content [fullscreen]="true" *ngIf="!isLoading && errorMessage == null">
+   
+</ion-content>

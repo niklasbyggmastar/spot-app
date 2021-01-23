@@ -12,69 +12,70 @@ import { Router, NavigationExtras } from '@angular/router';
 })
 export class Tab1Page {
 
-    public title: string = "Spots nearby";
-    public currentLocation = {
+    title: string = "Spots nearby";
+    currentLocation = {
         latitude: "",
         longitude: ""
     };
-    public allSpots: Array<Spot>;
+    allSpots: Array<Spot> = [];
+    isLoading = true;
+    errorMessage = null;
 
     constructor(private http: HttpClient, public geo: Geolocation, private router: Router) { }
 
     async ngOnInit() {
-        await this.getCurrentLocationAndSpotList();
+        await this.getCurrentLocation();
+        this.isLoading = false;
+
+        await this.getSpotList();
+        
 
         for (let spot of this.allSpots) {
             console.log(spot.name);
-            this.getDistanceToSpot(spot);
+            await this.getDistanceToSpot(spot);
+            spot.isLoading = false;
         }
+
+        this.allSpots.sort((a, b) => a.distance - b.distance);
+        
 
         /*this.http.get("https://goo.gl/maps/y6Uke9DGFF6euXD17").toPromise().then((res) => {
             console.log(res);
         })*/
     }
 
-    async getCurrentLocationAndSpotList() {
-        this.geo.getCurrentPosition().then(res => {
+    async getCurrentLocation() {
+        return this.geo.getCurrentPosition().then(res => {
             console.log(res);
             if (res && res.coords) {
                 this.currentLocation.latitude = res.coords.latitude.toString();
                 this.currentLocation.longitude = res.coords.longitude.toString();
             }
-        }).catch(error => {
-            console.warn(error);
+        }).catch(err => {
+            this.handleErrorState(err);
         });
+    }
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                const pos = {
-                  lat: position.coords.latitude,
-                  lng: position.coords.longitude,
-                };
-                console.log(pos);
-            })
-        }
-
+    async getSpotList() {
         return this.http.get(environment.storageAccountUrl).toPromise().then((res:any) => {
             console.log(res);
             this.allSpots = res.value;
         }).catch(err => {
-            console.warn(err);
+            this.handleErrorState(err);
         });
     }
 
-    public openSpotDetails(id) {
+    openSpotDetails(id) {
         console.log(id);
         const navExtras: NavigationExtras = {
             state: {
                 id: id
             }
         };
-        this.router.navigate(['/details'], navExtras);
+        this.router.navigate(['/details', id]);
     }
 
-    private getDistanceToSpot(spot: Spot) {
+    private async getDistanceToSpot(spot: Spot) {
         console.log(this.currentLocation);
         console.log(spot.lat, spot.lon);
         const data = [
@@ -88,14 +89,20 @@ export class Tab1Page {
             }
         ];
 
-        this.http.post(`${environment.apiUrl}/distance`, data).toPromise().then((res:any) => {
+        return this.http.post(`${environment.apiUrl}/distance`, data).toPromise().then((res:any) => {
             console.log(res);
             const distance = (res.rows[0].elements[0].distance.value/1000).toFixed(2);
             console.log(distance);
             spot.distance = parseFloat(distance);
         }).catch(err => {
-            console.warn(err);
+            this.handleErrorState(err);
         })
+    }
+
+    private handleErrorState(message: string) {
+        console.warn(message);
+        this.isLoading = false;
+        this.errorMessage = message;
     }
 
 }

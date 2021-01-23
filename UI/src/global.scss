@@ -24,3 +24,16 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+.loadingDiv {
+    display: flex; 
+    justify-content: center; 
+    min-height: 100vh; 
+    align-items: center; 
+    transform: scale(2);
+
+    ion-spinner {
+        margin-bottom: 60px;
+        color: white;
+    }
+}
