@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Spot } from '../models/Spot';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonService } from '../services/common.service';
 
 
 @Component({
@@ -13,19 +12,33 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class DetailsPage implements OnInit {
     id: string;
-    isLoading = false;
-    errorMessage: string;
+    spot: Spot;
+    isLoading = true;
+    images: Array<string> = [];
 
-    constructor(private http: HttpClient, private route: ActivatedRoute){}
+    constructor(private http: HttpClient, private activatedRoute: ActivatedRoute, private router: Router, private common: CommonService){}
 
-    ngOnInit() {
-        this.id = this.route.snapshot.paramMap.get("id");
-        console.log(this.id);
-        this.http.get(`${environment.storageAccountUrl}&PartitionKey=spot&RowKey=${this.id}`).toPromise().then((res:any) => {
-            console.log(res);
-        }).catch(err => {
-            console.warn(err);
-        })
+    async ngOnInit() {
+        this.spot = this.router.getCurrentNavigation()?.extras?.state?.data;
+        console.log(this.spot);
+        if (!this.spot) {
+            this.id = this.activatedRoute.snapshot.paramMap.get("id");
+            console.log(this.id);
+            this.spot = JSON.parse(localStorage.getItem("allSpots")).find(i => i.RowKey == this.id);
+        }
+        this.getImages();
+        this.isLoading = false;
+    }
+
+    getImages() {
+        if (this.spot.imgUrls && this.spot.imgUrls.length > 0) {
+            this.images = JSON.parse(this.spot.imgUrls);
+            console.log(this.images);
+        }
+    }
+
+    openNavigation() {
+        window.location.href = `https://www.google.com/maps/dir/?api=1&destination=${this.spot.lat},${this.spot.lon}`; // &origin=${this.common.currentLocation.latitude},${this.common.currentLocation.longitude}
     }
 
 }

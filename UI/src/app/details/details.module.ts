@@ -16,8 +16,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forChild(routes),
     CommonModule,
-    IonicModule,
-    HttpClientModule
+    IonicModule
   ],
   declarations: [DetailsPage]
 })

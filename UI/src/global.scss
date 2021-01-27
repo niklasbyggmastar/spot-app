@@ -30,10 +30,12 @@
     justify-content: center; 
     min-height: 100vh; 
     align-items: center; 
-    transform: scale(2);
+    background-color: #000000;
 
     ion-spinner {
         margin-bottom: 60px;
         color: white;
+        transform: scale(2);
+        margin-bottom: 130px;
     }
 }

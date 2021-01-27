@@ -1,19 +1,35 @@
 <ion-header [translucent]="true">
     <ion-toolbar>
         <ion-title>
-            <a [routerLink]="['/']">Back</a> {{id}}
+            <a [routerLink]="['/']">
+                <ion-icon style="transform: scale(1.5);" name="chevron-back-outline"></ion-icon>
+            </a> 
+            {{spot != null ? spot.name : "Not found"}}
         </ion-title>
     </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" *ngIf="!isLoading && errorMessage != null">
-    {{errorMessage}}
+<ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage != null">
+    {{common.errorMessage}}
 </ion-content>
 
 <div *ngIf="isLoading" class="loadingDiv">
-    <ion-spinner name="bubbles" class="loadingMargin"></ion-spinner>
+    <ion-spinner name="bubbles"></ion-spinner>
 </div>
 
-<ion-content [fullscreen]="true" *ngIf="!isLoading && errorMessage == null">
-   
+<ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage == null">
+    <ion-card>
+        <ion-item>
+            <ion-label *ngIf="spot.distance">{{ spot.distance }} km away</ion-label>
+            <ion-button (click)="openNavigation()" fill="outline" slot="end">Navigate</ion-button>
+        </ion-item>
+        
+        <ion-card-content>
+            <p>{{spot.description}}</p>
+            <div *ngIf="images && images.length > 0">
+                <img class="my-1" *ngFor="let img of images" src="{{img}}" alt="{{spot.name}}">
+            </div>
+            
+        </ion-card-content>
+        </ion-card>
 </ion-content>

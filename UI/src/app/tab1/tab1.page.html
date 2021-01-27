@@ -6,15 +6,15 @@
     </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" *ngIf="!isLoading && errorMessage != null">
-    {{errorMessage}}
+<ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage != null">
+    {{common.errorMessage}}
 </ion-content>
 
 <div *ngIf="isLoading" class="loadingDiv">
-    <ion-spinner name="bubbles" class="loadingMargin"></ion-spinner>
+    <ion-spinner name="bubbles"></ion-spinner>
 </div>
 
-<ion-content [fullscreen]="true" *ngIf="!isLoading && errorMessage == null">
+<ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage == null">
     <ion-header collapse="condense">
         <ion-toolbar>
             <ion-title size="large">{{title}}</ion-title>            
@@ -24,9 +24,9 @@
     <ion-list>
         <small>
             Current location: 
-            <a href="https://www.google.com/maps/place/{{currentLocation.latitude}},{{currentLocation.longitude}}">{{currentLocation.latitude}}, {{currentLocation.longitude}}</a>
+            <a href="https://www.google.com/maps/place/{{common.currentLocation.latitude}},{{common.currentLocation.longitude}}">{{common.currentLocation.latitude}}, {{common.currentLocation.longitude}}</a>
         </small>
-        <ion-item *ngFor="let spot of allSpots" (click)="openSpotDetails(spot.RowKey)">
+        <ion-item *ngFor="let spot of allSpots" (click)="openSpotDetails(spot)">
             <ion-avatar slot="start">
                 <img src="assets/img/{{spot.type}}.png" />
             </ion-avatar>
@@ -38,7 +38,7 @@
                     <span *ngIf="spot.description"> - {{spot.description}}</span>
                 </p>
                 <p *ngIf="spot.distance">{{spot.distance}} km</p>
-                <ion-spinner *ngIf="!spot.distance && spot.isLoading" name="dots" class="loadingMargin"></ion-spinner>
+                <ion-spinner *ngIf="!spot.distance && spot.isLoading" name="dots"></ion-spinner>
             </ion-label>
         </ion-item>
     </ion-list>
