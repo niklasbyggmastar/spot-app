@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace SpotAppApi.Controllers
 {
@@ -14,6 +16,7 @@ namespace SpotAppApi.Controllers
     public class SpotsController : ControllerBase
     {
         private readonly ILogger<SpotsController> _logger;
+        private string TableName = "spots";
 
         public SpotsController(ILogger<SpotsController> logger)
         {
@@ -21,11 +24,28 @@ namespace SpotAppApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public  IActionResult Get()
         {
             _logger.LogInformation("LOLLERO");
             return Ok("ok lol");
         }
+
+        [HttpPost]
+        [Route("update")]
+        public async Task<IActionResult> UpdateSpot([FromBody] Spot spot)
+        {
+            _logger.LogInformation(spot.description);
+            CloudStorageAccount storageAcc = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("ConnectionString"));
+            CloudTableClient tblclient = storageAcc.CreateCloudTableClient();
+            CloudTable table = tblclient.GetTableReference(this.TableName);
+
+            TableOperation insertOperation = TableOperation.InsertOrMerge(spot);
+            TableResult result = await table.ExecuteAsync(insertOperation).ConfigureAwait(false);
+            _logger.LogInformation("OK");
+            return Ok(result);
+
+        }
+
 
         [HttpPost]
         [Route("distance")]
