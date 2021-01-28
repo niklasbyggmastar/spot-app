@@ -1,14 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { DetailsPage } from './details.page';
+import { EditPage } from './edit/edit.page';
+import { FormsModule } from '@angular/forms';
 
 const routes: Routes = [
   {
     path: '',
     component: DetailsPage,
+  },
+  {
+    path: 'edit',
+    component: EditPage
   }
 ];
 
@@ -16,8 +21,9 @@ const routes: Routes = [
   imports: [
     RouterModule.forChild(routes),
     CommonModule,
-    IonicModule
+    IonicModule,
+    FormsModule
   ],
-  declarations: [DetailsPage]
+  declarations: [DetailsPage, EditPage]
 })
 export class DetailsPageRoutingModule {}

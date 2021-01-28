@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
     <ion-toolbar>
         <ion-title>
-            <a [routerLink]="['/']">
+            <a [routerLink]="['/details', spot.RowKey]">
                 <ion-icon style="transform: scale(1.5);" name="chevron-back-outline"></ion-icon>
             </a> 
             {{spot != null ? spot.name : "Not found"}}
@@ -19,20 +19,23 @@
 
 <ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage == null">
     <ion-card>
-        <ion-item>
-            <ion-label *ngIf="spot.distance">{{ spot.distance }} km away</ion-label>
-            <a routerLink="edit">
-                <ion-button fill="outline" slot="end">Edit</ion-button>
-            </a>
-            <ion-button (click)="openNavigation()" fill="outline" slot="end">Navigate</ion-button>
-        </ion-item>
-        
-        <ion-card-content>
-            <p>{{spot.description}}</p>
-            <div *ngIf="images && images.length > 0">
-                <img class="my-1" *ngFor="let img of images" src="{{img}}" alt="{{spot.name}}">
+        <ion-card-content (click)="addImages()">
+            <ion-button slot="start">Add images</ion-button>
+            <div class="form-group mt-3">
+                Description
+                <input [(ngModel)]="spot.description" type="text" class="form-control" />
             </div>
-            
         </ion-card-content>
         </ion-card>
 </ion-content>
+
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button (click)="saveChanges()" style="--background:green">
+        <ion-label style="color: white;">Save</ion-label>
+      </ion-tab-button>
+  
+      <ion-tab-button (click)="cancel()" style="--background:red">
+        <ion-label style="color: white;">Cancel</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  
