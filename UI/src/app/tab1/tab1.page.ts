@@ -24,7 +24,8 @@ export class Tab1Page {
         this.isLoading = false;
 
         // Get spots, either from localStorage or db
-        if (localStorage.getItem("allSpots") != null) {
+        // Length must be over 2, value can be "[]"
+        if (localStorage.getItem("allSpots") != null && localStorage.getItem("allSpots").length > 2) {
             this.allSpots = JSON.parse(localStorage.getItem("allSpots"));
             this.spotsWereCached = true;
         } else {
@@ -59,4 +60,21 @@ export class Tab1Page {
     openSpotDetails(spot: Spot) {
         this.router.navigate(['/details', spot.RowKey], {state: { data: spot }});
     }
+
+    async doRefresh(event) {
+        await this.common.getCurrentLocation();
+
+        // Get spots, either from localStorage or db
+        // Length must be over 2, value can be "[]"
+        await this.getSpotList();
+
+        // Get distances to spots if the location had been changed from the previous one or if the spots were fetched from db
+        for (let i in this.allSpots) {
+            this.allSpots = await this.common.getDistanceToSpot(this.allSpots, i);
+            this.allSpots.sort((a, b) => a.distance - b.distance);
+            localStorage.setItem("allSpots", JSON.stringify(this.allSpots));
+        }
+        this.allSpots.map(s => s.isLoading = false);
+        event.target.complete();
+      }
 }

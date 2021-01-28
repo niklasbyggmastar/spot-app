@@ -31,8 +31,8 @@ export class CommonService {
                 const lastUpdated = parseInt(localStorage.getItem("locationUpdated"));
 
                 // If not the first time, so a previous position has been saved
-                // Set new location only if the position differs from the old location or 10 min has passed
-                if (Date.now()-lastUpdated > 600000 || (oldPosition == null || (oldPosition != null && (oldPosition.latitude != this.currentLocation.latitude || oldPosition.longitude != this.currentLocation.longitude)))) {
+                // Set new location only if the position differs from the old location or 60 min has passed
+                if (Date.now()-lastUpdated > 3600000 || (oldPosition == null || (oldPosition != null && (oldPosition.latitude != this.currentLocation.latitude || oldPosition.longitude != this.currentLocation.longitude)))) {
                     this.setNewLocation();
                 }
             }
