@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 using SpotAppApi.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace SpotAppApi.Controllers
 {
@@ -17,10 +20,12 @@ namespace SpotAppApi.Controllers
     {
         private readonly ILogger<SpotsController> _logger;
         private string TableName = "spots";
+        private readonly BlobServiceClient _blobServiceClient;
 
-        public SpotsController(ILogger<SpotsController> logger)
+        public SpotsController(ILogger<SpotsController> logger, BlobServiceClient blobServiceClient)
         {
             _logger = logger;
+            _blobServiceClient = blobServiceClient;
         }
 
         [HttpGet]
@@ -35,6 +40,10 @@ namespace SpotAppApi.Controllers
         public async Task<IActionResult> UpdateSpot([FromBody] Spot spot)
         {
             _logger.LogInformation(spot.description);
+            if (spot.PartitionKey == null)
+            {
+                spot.PartitionKey = "spot";
+            }
             CloudStorageAccount storageAcc = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("ConnectionString"));
             CloudTableClient tblclient = storageAcc.CreateCloudTableClient();
             CloudTable table = tblclient.GetTableReference(this.TableName);
@@ -46,13 +55,52 @@ namespace SpotAppApi.Controllers
 
         }
 
+        [HttpPost]
+        [Route("add-image")]
+        public async Task<IActionResult> AddImage([FromBody] JsonElement data)
+        {
+            string filename = data.GetProperty("name").GetString();
+            string b64image = data.GetProperty("data").GetString().Split(',')[1];
+            var bytes = Convert.FromBase64String(b64image);
+
+            var containerClient = _blobServiceClient.GetBlobContainerClient("images");
+            var blobClient = containerClient.GetBlobClient($"{filename}.jpg");
+
+            using (var fileStream = new MemoryStream(bytes))
+            {
+                // upload image stream to blob
+                await blobClient.UploadAsync(fileStream, new BlobHttpHeaders { ContentType = "image/jpeg" });
+            }
+            return Ok("{\"result\":\"" + blobClient.Uri + "?sv=2019-12-12&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2021-01-31T20:47:38Z&sig=TGshrezrjHMnB8spAHBTl04kVGuRiYCVmJKTYw8yeuU%3D\"}");
+        }
+
+        [HttpPost]
+        [Route("get-coordinates")]
+        public async Task<IActionResult> GetCoordinatesFromAddress([FromBody] JsonElement json)
+        {
+            try
+            {
+                string address = json.GetProperty("address").GetString();
+                _logger.LogInformation($"ADDRESS {address}");
+                var http = new HttpClient();
+                var result = await http.GetAsync(
+                    $"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={Environment.GetEnvironmentVariable("API_KEY")}").ConfigureAwait(false);
+
+                _logger.LogInformation(result.StatusCode.ToString());
+                var data = await result.Content.ReadAsStringAsync();
+                _logger.LogInformation(data);
+                return Ok(data);
+            } catch (Exception e)
+            {
+                _logger.LogWarning(e.Message);
+                return NotFound(e.Message);
+            }
+        }
 
         [HttpPost]
         [Route("distance")]
         public async Task<IActionResult> GetDistanceBetweenPoints([FromBody] List<Coordinates> coordinates)
         {
-            Console.WriteLine("CONSOLE");
-            _logger.LogInformation("LOLOL1");
             try
             {
                 _logger.LogInformation($"LOCATION {coordinates[0].Latitude}, {coordinates[0].Longitude}");
