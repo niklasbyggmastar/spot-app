@@ -23,7 +23,8 @@ namespace SpotAppApi
         public string lon { get; set; }
         public string description { get; set; }
         public string imgUrls { get; set; }
-        public float distance { get; set; }
+        public float distance { get; set; } = 0;
+        public string duration { get; set; } = "";
         public bool isLoading { get; set; } = true;
     }
 }

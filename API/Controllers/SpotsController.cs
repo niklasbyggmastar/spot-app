@@ -7,6 +7,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using SpotAppApi.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
@@ -56,6 +57,30 @@ namespace SpotAppApi.Controllers
         }
 
         [HttpPost]
+        [Route("remove-spot")]
+        public async Task<IActionResult> RemoveSpot([FromBody] Spot spot)
+        {
+            spot.ETag = "*";
+
+            foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(spot))
+            {
+                string name = descriptor.Name;
+                object value = descriptor.GetValue(spot);
+                _logger.LogInformation("{0}={1}", name, value);
+            }
+
+            CloudStorageAccount storageAcc = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("ConnectionString"));
+            CloudTableClient tblclient = storageAcc.CreateCloudTableClient();
+            CloudTable table = tblclient.GetTableReference(this.TableName);
+
+            TableOperation insertOperation = TableOperation.Delete(spot);
+            TableResult result = await table.ExecuteAsync(insertOperation).ConfigureAwait(false);
+            _logger.LogInformation("OK");
+            return Ok(result);
+
+        }
+
+        [HttpPost]
         [Route("add-image")]
         public async Task<IActionResult> AddImage([FromBody] JsonElement data)
         {
@@ -71,7 +96,7 @@ namespace SpotAppApi.Controllers
                 // upload image stream to blob
                 await blobClient.UploadAsync(fileStream, new BlobHttpHeaders { ContentType = "image/jpeg" });
             }
-            return Ok("{\"result\":\"" + blobClient.Uri + "?sv=2019-12-12&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2021-01-31T20:47:38Z&sig=TGshrezrjHMnB8spAHBTl04kVGuRiYCVmJKTYw8yeuU%3D\"}");
+            return Ok("{\"result\":\"" + blobClient.Uri + "?sp=racwdl&st=2021-02-05T13:51:37Z&se=2028-01-06T13:51:00Z&sv=2019-12-12&sr=c&sig=lsFQhB%2F6GdUvCgj8%2Fk%2FB4qDqKfPCaBspOlMVnUarKdo%3D\"}");
         }
 
         [HttpPost]
