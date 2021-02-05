@@ -1,11 +1,12 @@
 <ion-header [translucent]="true">
     <ion-toolbar>
         <ion-title>
-            <a [routerLink]="['/']">
+            <a (click)="goToMain()">
                 <ion-icon style="transform: scale(1.5);" name="chevron-back-outline"></ion-icon>
             </a> 
             {{spot != null ? spot.name : "Not found"}}
         </ion-title>
+        <ion-icon (click)="removeSpot()" style="transform: scale(1.5);color: rgb(230,50,50);" class="mr-3" slot="end" name="trash-outline"></ion-icon>
     </ion-toolbar>
 </ion-header>
 
@@ -17,10 +18,13 @@
     <ion-spinner name="bubbles"></ion-spinner>
 </div>
 
-<ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage == null">
+<ion-content [fullscreen]="true" *ngIf="spot != null && !isLoading && common.errorMessage == null">
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
     <ion-card>
         <ion-item>
-            <ion-label *ngIf="spot.distance">{{ spot.distance }} km away</ion-label>
+            <ion-label *ngIf="spot.distance != null">{{ spot.distance }} km away</ion-label>
             <a routerLink="edit">
                 <ion-button fill="outline" slot="end">Edit</ion-button>
             </a>

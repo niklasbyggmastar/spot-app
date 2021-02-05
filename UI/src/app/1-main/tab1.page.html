@@ -1,0 +1,73 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-title>
+            {{title}}
+        </ion-title>
+        <ion-button style="transform: scale(0.5);" (click)="common.debug.isVisible = !common.debug.isVisible" slot="end">debug</ion-button>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage != null">
+    {{common.errorMessage}}
+</ion-content>
+
+
+
+<div *ngIf="isLoading" class="loadingDiv">
+    <ion-spinner name="bubbles"></ion-spinner>
+</div>
+
+<ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage == null">
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    <ion-header collapse="condense">
+        <ion-toolbar>
+            <ion-title size="large">{{title}}</ion-title>            
+        </ion-toolbar>
+    </ion-header>
+
+    <ion-list>
+
+        <div *ngIf="common.debug.isVisible">
+            <small>
+                Current location:
+                <a
+                    href="https://www.google.com/maps/place/{{common.currentLocation.latitude}},{{common.currentLocation.longitude}}">{{common.currentLocation.latitude}},
+                    {{common.currentLocation.longitude}}</a>
+            </small>
+            <br>
+            <small>
+                old {{common.debug.oldPosition.latitude}}, {{common.debug.oldPosition.longitude}}, changed
+                {{common.debug.oldPosition != null && (common.debug.oldPosition.latitude != common.currentLocation.latitude ||
+                common.debug.oldPosition.longitude != common.currentLocation.longitude)}}
+            </small>
+            <br>
+            <small>
+                last updated {{common.debug.lastUpdated}}, threshold: 15 mins
+            </small>
+            <br>
+            <small>timediff: {{common.debug.timeDifference}}, threshold over: {{common.debug.isMoreThanThreshold}}</small>
+            <small> -> changed: {{common.locationChanged}}</small>
+            <br>
+            <small>cached: {{spotsWereCached}} </small>
+        </div>
+        <ion-item *ngFor="let spot of allSpots" (click)="openSpotDetails(spot)">
+            <ion-avatar slot="start">
+                <img src="assets/img/{{spot.type}}.png" />
+            </ion-avatar>
+
+            <ion-label>
+                <h2>{{spot.name}}</h2>
+                <p>
+                    {{spot.type | titlecase}}
+                    <span *ngIf="spot.description"> - {{spot.description}}</span>
+                </p>
+                <p *ngIf="spot.distance">{{spot.distance}} km {{spot.duration != null ? "- " + spot.duration : ""}}</p>
+                <ion-spinner *ngIf="spot.isLoading" name="dots"></ion-spinner>
+            </ion-label>
+        </ion-item>
+    </ion-list>    
+
+    <!--<app-explore-container name="Tab 1 page"></app-explore-container>-->
+</ion-content>

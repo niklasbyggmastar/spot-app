@@ -1,0 +1,37 @@
+<ion-header [translucent]="true">
+	<ion-toolbar>
+		<ion-title>
+			Tab 3
+		</ion-title>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+	<ion-header collapse="condense">
+		<ion-toolbar>
+			<ion-title size="large">Tab 3</ion-title>
+		</ion-toolbar>
+	</ion-header>
+
+	<small>
+		Current location:
+		<a
+			href="https://www.google.com/maps/place/{{common.currentLocation.latitude}},{{common.currentLocation.longitude}}">{{common.currentLocation.latitude}},
+			{{common.currentLocation.longitude}}</a>
+	</small>
+	<br>
+	<small>
+		old {{common.debug.oldPosition.latitude}}, {{common.debug.oldPosition.longitude}}, changed
+		{{common.debug.oldPosition != null && (common.debug.oldPosition.latitude != common.currentLocation.latitude ||
+		common.debug.oldPosition.longitude != common.currentLocation.longitude)}}
+	</small>
+	<br>
+	<small>
+		last updated {{common.debug.lastUpdated}}, threshold: 15 mins
+	</small>
+	<br>
+	<small>timediff: {{common.debug.timeDifference}}, threshold over: {{common.debug.isMoreThanThreshold}}</small>
+	<small> -> changed: {{common.locationChanged}}</small>
+	<br>
+	<!--<small>cached: {{spotsWereCached}} </small>-->
+</ion-content>

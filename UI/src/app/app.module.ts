@@ -10,7 +10,8 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
-import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import {NgxImageCompressService } from 'ngx-image-compress';
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -21,7 +22,7 @@ import { FileChooser } from '@ionic-native/file-chooser/ngx';
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     Geolocation,
-    FileChooser
+    NgxImageCompressService
   ],
   bootstrap: [AppComponent]
 })

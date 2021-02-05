@@ -19,14 +19,16 @@
 
 <ion-content [fullscreen]="true" *ngIf="!isLoading && common.errorMessage == null">
     <ion-card>
-        <ion-card-content (click)="addImages()">
-            <ion-button slot="start">Add images</ion-button>
-            <div class="form-group mt-3">
+        <ion-card-content>
+            <ion-label>Add images</ion-label>
+            <input type="file" (change)="addImage($event)" accept="image/*" />
+            <div class="form-group mt-4">
                 Description
                 <input [(ngModel)]="spot.description" type="text" class="form-control" />
             </div>
+            <img *ngIf="image != null" [src]="image" alt="New image" />
         </ion-card-content>
-        </ion-card>
+    </ion-card>
 </ion-content>
 
     <ion-tab-bar slot="bottom">

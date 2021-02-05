@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Sanitizer } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Spot } from '../../models/Spot';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonService } from '../../services/common.service';
-import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'app-edit',
@@ -14,42 +14,51 @@ export class EditPage implements OnInit {
     id: string;
     spot: Spot;
     isLoading = true;
-    images: Array<string> = [];
+    image: string = null;
 
-    constructor(private http: HttpClient, private activatedRoute: ActivatedRoute, private router: Router, private common: CommonService, private fileChooser: FileChooser){}
+    constructor(private http: HttpClient, private activatedRoute: ActivatedRoute, public common: CommonService) { }
 
     async ngOnInit() {
-        this.spot = this.router.getCurrentNavigation()?.extras?.state?.data;
-        console.log(this.spot);
+        this.spot = this.common.router.getCurrentNavigation()?.extras?.state?.data;
         if (!this.spot) {
             this.id = this.activatedRoute.snapshot.paramMap.get("id");
             console.log(this.id);
             this.spot = JSON.parse(localStorage.getItem("allSpots")).find(i => i.RowKey == this.id);
         }
-        this.getImages();
+        console.log(this.spot);
         this.isLoading = false;
     }
 
-    getImages() {
-        if (this.spot.imgUrls && this.spot.imgUrls.length > 0) {
-            this.images = JSON.parse(this.spot.imgUrls);
-            console.log(this.images);
+    addImage(event) {
+        console.log(event);
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            this.image = reader.result as string;
+            console.log(this.image);
+        };
+        reader.onerror = (error) => {
+            //handle errors
+            console.warn(error);
+        };
+    }
+
+    async saveChanges() {
+        if (this.image != null) {
+            await this.common.uploadImage(this.spot, this.image);
         }
-    }
-
-    addImages() {
-        console.log("add images");
-        this.fileChooser.open().then(uri => {
-            console.log(uri)
-        }).catch(e => console.log(e));
-    }
-
-    saveChanges() {
         console.log(this.spot);
+        this.http.post(`${environment.apiUrl}/update`, this.spot).toPromise().then((res: any) => {
+            console.log(res);
+            this.common.router.navigate(["details", this.spot.RowKey], { state: { data: this.spot } });
+        }).catch(err => {
+            this.common.handleErrorState(err);
+        })
     }
 
     cancel() {
-        this.router.navigate(["details", this.spot.RowKey], {state: { data: this.spot }});
+        this.common.router.navigate(["details", this.spot.RowKey], { state: { data: this.spot } });
     }
 
 }

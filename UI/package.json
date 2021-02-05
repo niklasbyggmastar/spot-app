@@ -30,6 +30,7 @@
     "bootstrap": "^4.6.0",
     "cordova-plugin-filechooser": "^1.2.0",
     "cordova-plugin-geolocation": "^4.0.2",
+    "ngx-image-compress": "^11.0.3",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"

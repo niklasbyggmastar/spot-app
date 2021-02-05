@@ -1,0 +1,68 @@
+<ion-header [translucent]="true">
+	<ion-toolbar>
+		<ion-title>
+			{{title}}
+		</ion-title>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+	<ion-header collapse="condense">
+		<ion-toolbar>
+			<ion-title size="large">{{title}}</ion-title>
+		</ion-toolbar>
+	</ion-header>
+	<ion-card>
+		<div class="form-group mx-2">
+
+			<div class="group-item">
+				<ion-label>Name</ion-label>
+				<input type="text" class="form-control" [(ngModel)]="spot.name">
+			</div>
+
+			<div class="group-item">
+				<ion-label>Type</ion-label>
+				<select class="form-control" [(ngModel)]="spot.type">
+					<option value="street">Street</option>
+					<option value="skatepark">Skatepark</option>
+				</select>
+			</div>
+
+			<div class="group-item">
+				<ion-label>Description</ion-label>
+				<input type="text" class="form-control" [(ngModel)]="spot.description">
+			</div>
+
+			<ion-button [ngClass]="{'selection-btn' : isUsingCurrentLocation != true}" style="font-size: 9px; padding: 0;" (click)="selectLocationMethod($event, true)">
+				Use current location
+				<ion-icon *ngIf="isUsingCurrentLocation == true" name="checkmark-circle-outline" style="transform:scale(1.5);margin-left:7px"></ion-icon>
+			</ion-button>
+
+			<ion-button [ngClass]="{'selection-btn' : isUsingCurrentLocation != false}"  class="ml-4 selection-btn" style="font-size: 9px; padding: 0;" (click)="selectLocationMethod($event, false)">
+				Enter address
+				<ion-icon *ngIf="isUsingCurrentLocation == false" name="checkmark-circle-outline" style="transform:scale(1.5);margin-left:7px"></ion-icon>
+			</ion-button>
+
+			<div *ngIf="isUsingCurrentLocation == false" class="group-item">
+				<ion-label>Address</ion-label>
+				<input type="text" class="form-control" [(ngModel)]="address">
+			</div>
+
+			<div class="group-item">
+				<ion-label>Image</ion-label>
+				<br>
+				<input id="file-input" type="file" (change)="addImage($event)" accept="image/*" />
+			</div>
+
+			<img *ngIf="image != null" [src]="image" alt="New image" />
+
+			<div class="group-item">
+				<ion-button (click)="save()" class="w-100 my-3">Save</ion-button>
+			</div>
+		</div>
+		
+	</ion-card>
+
+	
+
+</ion-content>
