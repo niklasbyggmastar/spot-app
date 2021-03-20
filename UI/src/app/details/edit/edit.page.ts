@@ -23,7 +23,7 @@ export class EditPage implements OnInit {
         if (!this.spot) {
             this.id = this.activatedRoute.snapshot.paramMap.get("id");
             console.log(this.id);
-            this.spot = JSON.parse(localStorage.getItem("allSpots")).find(i => i.RowKey == this.id);
+            this.spot = JSON.parse(localStorage.getItem("allSpots")).find(i => i.rowKey == this.id);
         }
         console.log(this.spot);
         this.isLoading = false;
@@ -51,14 +51,14 @@ export class EditPage implements OnInit {
         console.log(this.spot);
         this.http.post(`${environment.apiUrl}/update`, this.spot).toPromise().then((res: any) => {
             console.log(res);
-            this.common.router.navigate(["details", this.spot.RowKey], { state: { data: this.spot } });
+            this.common.router.navigate(["details", this.spot.rowKey], { state: { data: this.spot } });
         }).catch(err => {
             this.common.handleErrorState(err);
         })
     }
 
     cancel() {
-        this.common.router.navigate(["details", this.spot.RowKey], { state: { data: this.spot } });
+        this.common.router.navigate(["details", this.spot.rowKey], { state: { data: this.spot } });
     }
 
 }

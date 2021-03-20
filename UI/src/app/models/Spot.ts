@@ -1,5 +1,5 @@
 export class Spot {
-    RowKey: string;
+    rowKey: string;
     PartitionKey?: string = "spot";
     TimeStamp?: Date = new Date(Date.now());
     name: string;

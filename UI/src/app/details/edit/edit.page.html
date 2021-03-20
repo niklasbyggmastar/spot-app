@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
     <ion-toolbar>
         <ion-title>
-            <a [routerLink]="['/details', spot.RowKey]">
+            <a [routerLink]="['/details', spot.rowKey]">
                 <ion-icon style="transform: scale(1.5);" name="chevron-back-outline"></ion-icon>
             </a> 
             {{spot != null ? spot.name : "Not found"}}

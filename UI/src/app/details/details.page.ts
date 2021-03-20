@@ -24,11 +24,11 @@ export class DetailsPage implements OnInit {
         console.log(this.common.router.getCurrentNavigation().extras);
         this.spot = this.common.router.getCurrentNavigation()?.extras?.state?.data;
         this.refreshList = this.common.router.getCurrentNavigation()?.extras?.state?.refreshList;
+        this.id = this.activatedRoute.snapshot.paramMap.get("id");
         console.log(this.spot);
+        console.log(this.id);
         if (!this.spot) {
-            this.id = this.activatedRoute.snapshot.paramMap.get("id");
-            console.log(this.id);
-            this.spot = JSON.parse(localStorage.getItem("allSpots")).find(i => i.RowKey == this.id);
+            this.spot = JSON.parse(localStorage.getItem("allSpots")).find(i => i.rowKey == this.id);
         }
         this.getImages();
         this.isLoading = false;
@@ -45,37 +45,9 @@ export class DetailsPage implements OnInit {
 
     async doRefresh(event) {
         await this.common.getCurrentLocation();
-        const res: Array<Spot> = await this.common.getSpotList()
-        console.log(res);
-        console.log(this.spot?.RowKey);
-        console.log(this.id);
-        if (this.id == undefined) {
-            this.id = this.activatedRoute.snapshot.paramMap.get("id");
-        } 
-        this.spot = res.find(s => s.RowKey == this.id);
+        this.spot = await this.common.getSpot(this.id);
         console.log(this.spot);
-        const data = [
-            {
-                Latitude: this.common.currentLocation.latitude,
-                Longitude: this.common.currentLocation.longitude
-            },
-            {
-                Latitude: this.spot.lat,
-                Longitude: this.spot.lon
-            }
-        ];
-        this.getImages();
-
-        this.http.post(`${environment.apiUrl}/distance`, data).toPromise().then((res:any) => {
-            const distance = (res.rows[0].elements[0].distance.value/1000).toFixed(1);
-            const duration = res.rows[0].elements[0].duration.text;
-            console.log(distance, duration);
-            this.spot.distance = parseFloat(distance);
-            this.spot.duration = duration;
-            this.spot.isLoading = false;
-        }).catch(err => {
-            this.common.handleErrorState(err);
-        })
+        await this.common.getDistanceToSpot2(this.spot);
         event.target.complete();
     }
 

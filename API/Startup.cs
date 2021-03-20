@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 using System;
 
 namespace SpotAppApi
@@ -29,6 +31,9 @@ namespace SpotAppApi
                 });
             });
             services.AddScoped(x => new BlobServiceClient(Environment.GetEnvironmentVariable("ConnectionString")));
+            CloudStorageAccount storageAcc = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("ConnectionString"));
+            CloudTableClient tblclient = storageAcc.CreateCloudTableClient();
+            services.AddScoped(x => tblclient.GetTableReference("spots"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

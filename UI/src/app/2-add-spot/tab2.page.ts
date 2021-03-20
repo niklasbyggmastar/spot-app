@@ -20,18 +20,34 @@ export class Tab2Page {
 	constructor(private http: HttpClient, public common: CommonService) { }
 
 	async save() {
+		const allSpots = await this.common.getSpotList();
+
 		if (this.isUsingCurrentLocation == false) {
 			await this.getCoordinatesFromAddress();
 			this.spot = await this.common.getDistanceToSpot2(this.spot);
 		}
-		this.spot.RowKey = this.spot.name.replace(/ /g, "-").toLowerCase();
+		this.spot.rowKey = this.spot.name.replace(/ /g, "-").toLowerCase();
+
+		const spotAlreadyExists = allSpots.findIndex(s => 
+			(s.name == this.spot.name && 
+			s.type == this.spot.type) ||
+			(s.lat == this.spot.lat && 
+			s.lon == this.spot.lon)
+		);
+		console.log(this.spot);
+		console.log(spotAlreadyExists);
+		if (spotAlreadyExists != -1) {
+			alert("Spot already exists!");
+			return;
+		}
+
 		if (this.image != null) {
             this.spot = await this.common.uploadImage(this.spot, this.image);
 		}
         console.log(this.spot);
         this.http.post(`${environment.apiUrl}/update`, this.spot).toPromise().then((res: any) => {
             console.log(res);
-			this.common.router.navigate(["details", this.spot.RowKey], { state: { data: this.spot, refreshList: true } });
+			this.common.router.navigate(["details", this.spot.rowKey], { state: { data: this.spot, refreshList: true } });
 			this.resetForm();
         }).catch(err => {
 			this.common.handleErrorState(err);

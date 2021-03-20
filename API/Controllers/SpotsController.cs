@@ -20,21 +20,52 @@ namespace SpotAppApi.Controllers
     public class SpotsController : ControllerBase
     {
         private readonly ILogger<SpotsController> _logger;
-        private string TableName = "spots";
         private readonly BlobServiceClient _blobServiceClient;
+        private readonly CloudTable _table;
 
-        public SpotsController(ILogger<SpotsController> logger, BlobServiceClient blobServiceClient)
+        public SpotsController(ILogger<SpotsController> logger, BlobServiceClient blobServiceClient, CloudTable table)
         {
             _logger = logger;
             _blobServiceClient = blobServiceClient;
+            _table = table;
         }
 
         [HttpGet]
         public  IActionResult Get()
         {
-            _logger.LogInformation("LOLLERO");
-            return Ok("ok lol");
+            _logger.LogInformation("/api/spots");
+            return Ok("/api/spots");
         }
+
+        [HttpGet]
+        [Route("all-spots")]
+        public async Task<IActionResult> GetAllSpots()
+        {
+            var spots = new List<Spot>();
+            TableContinuationToken token = null;
+            do
+            {
+                var result = await _table.ExecuteQuerySegmentedAsync(new TableQuery<Spot>(), token).ConfigureAwait(false);
+                spots.AddRange(result.Results);
+                token = result.ContinuationToken;
+            } while (token != null);
+
+            return Ok(spots);
+        }
+
+        [HttpPost]
+        [Route("spot")]
+        public async Task<IActionResult> GetSpot([FromBody] JsonElement data)
+        {
+            string rowKey = data.GetProperty("data").GetString();
+            _logger.LogInformation("_----------------------------------------");
+            _logger.LogInformation(rowKey);
+            TableOperation op = TableOperation.Retrieve<Spot>("spot", rowKey);
+            TableResult result = await _table.ExecuteAsync(op).ConfigureAwait(false);
+            _logger.LogInformation(result.Result.ToString());
+            return Ok(result.Result);
+        }
+
 
         [HttpPost]
         [Route("update")]
@@ -45,12 +76,8 @@ namespace SpotAppApi.Controllers
             {
                 spot.PartitionKey = "spot";
             }
-            CloudStorageAccount storageAcc = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("ConnectionString"));
-            CloudTableClient tblclient = storageAcc.CreateCloudTableClient();
-            CloudTable table = tblclient.GetTableReference(this.TableName);
-
             TableOperation insertOperation = TableOperation.InsertOrMerge(spot);
-            TableResult result = await table.ExecuteAsync(insertOperation).ConfigureAwait(false);
+            TableResult result = await _table.ExecuteAsync(insertOperation).ConfigureAwait(false);
             _logger.LogInformation("OK");
             return Ok(result);
 
@@ -68,13 +95,8 @@ namespace SpotAppApi.Controllers
                 object value = descriptor.GetValue(spot);
                 _logger.LogInformation("{0}={1}", name, value);
             }
-
-            CloudStorageAccount storageAcc = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("ConnectionString"));
-            CloudTableClient tblclient = storageAcc.CreateCloudTableClient();
-            CloudTable table = tblclient.GetTableReference(this.TableName);
-
             TableOperation insertOperation = TableOperation.Delete(spot);
-            TableResult result = await table.ExecuteAsync(insertOperation).ConfigureAwait(false);
+            TableResult result = await _table.ExecuteAsync(insertOperation).ConfigureAwait(false);
             _logger.LogInformation("OK");
             return Ok(result);
 

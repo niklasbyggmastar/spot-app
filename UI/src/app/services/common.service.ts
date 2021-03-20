@@ -41,7 +41,7 @@ export class CommonService {
                 const oldPosition = JSON.parse(localStorage.getItem("currentLocation"));
                 const lastUpdated = parseInt(localStorage.getItem("locationUpdated"));
                 this.debug = {
-                    isVisible: true,
+                    isVisible: this.debug.isVisible,
                     oldPosition: oldPosition,
                     lastUpdated: new Date(lastUpdated).toLocaleString(),
                     timeDifference: Date.now()-lastUpdated,
@@ -64,12 +64,23 @@ export class CommonService {
         });
     }
 
-    async getSpotList(): Promise<any> {
-        return this.http.get(environment.storageAccountUrl).toPromise().then((res:any) => {
-            return res.value;
+    async getSpotList(): Promise<Array<Spot>> {
+        return this.http.get(`${environment.apiUrl}/all-spots`).toPromise().then((res: Array<Spot>) => {
+            console.log(res);
+            return res;
         }).catch(err => {
             this.handleErrorState(err);
+            return null;
         });
+    }
+
+    async getSpot(rowKey: string): Promise<Spot> {
+        return this.http.post(`${environment.apiUrl}/spot`, {data: rowKey}).toPromise().then((res: Spot) => {
+            return res;
+        }).catch(err => {
+            this.handleErrorState(err);
+            return null;
+        })
     }
 
     setNewLocation() {
@@ -79,7 +90,7 @@ export class CommonService {
         this.locationChanged = true;
     }
     
-    handleErrorState(message: string) {
+    handleErrorState(message: string): any{
         console.warn(message);
         alert(message);
         if (message != typeof(String)) {
@@ -111,7 +122,7 @@ export class CommonService {
             return allSpots;
         }).catch(err => {
             this.handleErrorState(err);
-            return null;
+            return allSpots;
         })
     }
 
@@ -146,7 +157,7 @@ export class CommonService {
         console.log(image);
         const compressedImage = await this.compressImage(image);
         console.log(compressedImage);
-        return this.http.post(`${environment.apiUrl}/add-image`, { data: compressedImage, name: `${spot.RowKey}-${Date.now().toString()}` }).toPromise().then((res: any) => {
+        return this.http.post(`${environment.apiUrl}/add-image`, { data: compressedImage, name: `${spot.rowKey}-${Date.now().toString()}` }).toPromise().then((res: any) => {
             console.log(res);
             if (res && res.result) {
                 console.log(spot.imgUrls);

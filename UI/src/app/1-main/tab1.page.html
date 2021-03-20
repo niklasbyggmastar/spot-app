@@ -28,7 +28,19 @@
     </ion-header>
 
     <ion-list>
+        <h6 class="ml-4 my-0">Filter spots</h6>
+        <div style="border-bottom: .5px solid white;">
+            <ion-button [ngClass]="{'selection-btn' : filter.skatepark == true}" (click)="filter.skatepark = !filter.skatepark" style="transform: scale(0.6); margin-right:-30px;">
+                <ion-icon *ngIf="filter.skatepark == true" name="checkmark-circle-outline" style="transform:scale(1.5);margin-right:7px"></ion-icon>
+                Skatepark
+            </ion-button>
+            <ion-button [ngClass]="{'selection-btn' : filter.street == true}" (click)="filter.street = !filter.street" style="transform: scale(0.6); margin:0px;">
+                <ion-icon *ngIf="filter.street == true" name="checkmark-circle-outline" style="transform:scale(1.5);margin-right:7px"></ion-icon>
+                Street
+            </ion-button>
+        </div>
 
+        <!-- DEGUB VIEW -->
         <div *ngIf="common.debug.isVisible">
             <small>
                 Current location:
@@ -52,21 +64,31 @@
             <br>
             <small>cached: {{spotsWereCached}} </small>
         </div>
-        <ion-item *ngFor="let spot of allSpots" (click)="openSpotDetails(spot)">
-            <ion-avatar slot="start">
-                <img src="assets/img/{{spot.type}}.png" />
-            </ion-avatar>
 
-            <ion-label>
-                <h2>{{spot.name}}</h2>
-                <p>
-                    {{spot.type | titlecase}}
-                    <span *ngIf="spot.description"> - {{spot.description}}</span>
-                </p>
-                <p *ngIf="spot.distance">{{spot.distance}} km {{spot.duration != null ? "- " + spot.duration : ""}}</p>
-                <ion-spinner *ngIf="spot.isLoading" name="dots"></ion-spinner>
-            </ion-label>
-        </ion-item>
+        <!-- LIST OF SPOTS -->
+        <div *ngFor="let spot of allSpots" (click)="openSpotDetails(spot)">
+            <ion-item *ngIf="
+                (filter.skatepark == true && filter.street == false) && spot.type == 'skatepark' ||
+                (filter.skatepark == false && filter.street == true) && spot.type == 'street' ||
+                (filter.skatepark == false && filter.street == false) || 
+                (filter.skatepark == true && filter.street == true)
+                " 
+            >
+                <ion-avatar slot="start">
+                    <img src="assets/img/{{spot.type}}.png" />
+                </ion-avatar>
+
+                <ion-label>
+                    <h2>{{spot.name}}</h2>
+                    <p>
+                        {{spot.type | titlecase}}
+                        <span *ngIf="spot.description"> - {{spot.description}}</span>
+                    </p>
+                    <p *ngIf="spot.distance">{{spot.distance}} km {{spot.duration != null ? "- " + spot.duration : ""}}</p>
+                    <ion-spinner *ngIf="spot.isLoading" name="dots"></ion-spinner>
+                </ion-label>
+            </ion-item>
+        </div>
     </ion-list>    
 
     <!--<app-explore-container name="Tab 1 page"></app-explore-container>-->

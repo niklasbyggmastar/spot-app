@@ -1,6 +1,5 @@
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
 import { Spot } from '../models/Spot';
 import { CommonService } from "../services/common.service";
 
@@ -12,14 +11,18 @@ import { CommonService } from "../services/common.service";
 export class Tab1Page implements OnInit, AfterViewChecked {
 
     title: string = "Spots nearby";
-    allSpots: Array<Spot> = [];
+    allSpots: Array<any> = [];
     isLoading = true;
     spotsWereCached = false;
+    filter = {
+        skatepark: false,
+        street: false
+    }
 
     constructor(private http: HttpClient, public common: CommonService) {}
 
     async ngAfterViewChecked() {
-        console.log(this.common.router.getCurrentNavigation()?.extras);
+        //console.log(this.common.router.getCurrentNavigation()?.extras);
         if (this.common.router.getCurrentNavigation()?.extras?.state?.refreshList && this.common.router.getCurrentNavigation()?.extras?.state?.refreshList == true) {
             console.log("SÄSÄSÄSÄ");
             await this.doRefresh();
@@ -38,6 +41,7 @@ export class Tab1Page implements OnInit, AfterViewChecked {
         } else {
             this.allSpots = await this.common.getSpotList();
         }
+        console.log(this.allSpots);
 
         // Get distances to spots if the location had been changed from the previous one or if the spots were fetched from db
         if (this.common.locationChanged || !this.spotsWereCached) {
@@ -52,7 +56,8 @@ export class Tab1Page implements OnInit, AfterViewChecked {
     }
 
     openSpotDetails(spot: Spot) {
-        this.common.router.navigate(['/details', spot.RowKey], {state: { data: spot }});
+        console.log(spot);
+        this.common.router.navigate(['/details', spot.rowKey], {state: { data: spot }});
     }
 
     async doRefresh(event?) {
@@ -63,12 +68,14 @@ export class Tab1Page implements OnInit, AfterViewChecked {
         this.allSpots = await this.common.getSpotList();
 
         // Get distances to spots if the location had been changed from the previous one or if the spots were fetched from db
-        for (let i in this.allSpots) {
-            this.allSpots = await this.common.getDistanceToSpot(this.allSpots, i);
-            this.allSpots.sort((a, b) => a.distance - b.distance);
-            localStorage.setItem("allSpots", JSON.stringify(this.allSpots));
+        for (let spot of this.allSpots) {
+            this.allSpots = await this.common.getDistanceToSpot(this.allSpots, this.allSpots.indexOf(spot));
         }
+        this.allSpots.sort((a, b) => a.distance - b.distance);
+        localStorage.setItem("allSpots", JSON.stringify(this.allSpots));
         this.allSpots.map(s => s.isLoading = false);
+
+        console.log(this.allSpots);
         if (event) {
             event.target.complete();
         }
