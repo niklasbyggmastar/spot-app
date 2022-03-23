@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
+using SpotAppApi.Attributes;
 using SpotAppApi.Models;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace SpotAppApi.Controllers
 {
+    [ApiKey]
     [ApiController]
     [Route("api/[controller]")]
     public class SpotsController : ControllerBase
@@ -131,7 +133,7 @@ namespace SpotAppApi.Controllers
                 _logger.LogInformation($"ADDRESS {address}");
                 var http = new HttpClient();
                 var result = await http.GetAsync(
-                    $"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={Environment.GetEnvironmentVariable("API_KEY")}").ConfigureAwait(false);
+                    $"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={Environment.GetEnvironmentVariable("GOOGLE_API_KEY")}").ConfigureAwait(false);
 
                 _logger.LogInformation(result.StatusCode.ToString());
                 var data = await result.Content.ReadAsStringAsync();
@@ -153,7 +155,7 @@ namespace SpotAppApi.Controllers
                 _logger.LogInformation($"LOCATION {coordinates[0].Latitude}, {coordinates[0].Longitude}");
                 var http = new HttpClient();
                 var result = await http.GetAsync(
-                    $"https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={coordinates[0].Latitude},{coordinates[0].Longitude}&destinations={coordinates[1].Latitude},{coordinates[1].Longitude}&key={Environment.GetEnvironmentVariable("API_KEY")}").ConfigureAwait(false);
+                    $"https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins={coordinates[0].Latitude},{coordinates[0].Longitude}&destinations={coordinates[1].Latitude},{coordinates[1].Longitude}&key={Environment.GetEnvironmentVariable("GOOGLE_API_KEY")}").ConfigureAwait(false);
 
                 _logger.LogInformation(result.StatusCode.ToString());
                 var data = await result.Content.ReadAsStringAsync();
