@@ -49,7 +49,11 @@ export class EditPage implements OnInit {
             await this.common.uploadImage(this.spot, this.image);
         }
         console.log(this.spot);
-        this.http.post(`${environment.apiUrl}/update`, this.spot).toPromise().then((res: any) => {
+        this.http.post(`${environment.apiUrl}/update`, this.spot, {
+            headers: {
+                "API_KEY": environment.apikey
+            }
+        }).toPromise().then((res: any) => {
             console.log(res);
             this.common.router.navigate(["details", this.spot.rowKey], { state: { data: this.spot } });
         }).catch(err => {

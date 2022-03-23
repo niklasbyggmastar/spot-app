@@ -55,7 +55,11 @@ export class DetailsPage implements OnInit {
         console.log(this.spot);
         if(confirm("Are you sure to remove this spot?")) {
             console.log("SWÄÄG");
-            this.http.post(`${environment.apiUrl}/remove-spot`, this.spot).toPromise().then((res: any) => {
+            this.http.post(`${environment.apiUrl}/remove-spot`, this.spot, {
+                headers: {
+                    "API_KEY": environment.apikey
+                }
+            }).toPromise().then((res: any) => {
                 console.log(res);
                 this.common.router.navigate(["/"], { state: { refreshList: true }});
             }).catch(err => {

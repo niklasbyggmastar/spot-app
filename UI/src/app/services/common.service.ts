@@ -65,7 +65,11 @@ export class CommonService {
     }
 
     async getSpotList(): Promise<Array<Spot>> {
-        return this.http.get(`${environment.apiUrl}/all-spots`).toPromise().then((res: Array<Spot>) => {
+        return this.http.get(`${environment.apiUrl}/all-spots`, {
+            headers: {
+                "API_KEY": environment.apikey
+            }
+        }).toPromise().then((res: Array<Spot>) => {
             console.log(res);
             return res;
         }).catch(err => {
@@ -75,7 +79,11 @@ export class CommonService {
     }
 
     async getSpot(rowKey: string): Promise<Spot> {
-        return this.http.post(`${environment.apiUrl}/spot`, {data: rowKey}).toPromise().then((res: Spot) => {
+        return this.http.post(`${environment.apiUrl}/spot`, {data: rowKey}, {
+            headers: {
+                "API_KEY": environment.apikey
+            }
+        }).toPromise().then((res: Spot) => {
             return res;
         }).catch(err => {
             this.handleErrorState(err);
@@ -112,7 +120,11 @@ export class CommonService {
             }
         ];
 
-        return this.http.post(`${environment.apiUrl}/distance`, data).toPromise().then((res:any) => {
+        return this.http.post(`${environment.apiUrl}/distance`, data, {
+            headers: {
+                "API_KEY": environment.apikey
+            }
+        }).toPromise().then((res:any) => {
             const distance = (res.rows[0].elements[0].distance.value/1000).toFixed(1);
             const duration = res.rows[0].elements[0].duration.text;
             console.log(distance, duration);
@@ -138,7 +150,11 @@ export class CommonService {
             }
         ];
 
-        return this.http.post(`${environment.apiUrl}/distance`, data).toPromise().then((res:any) => {
+        return this.http.post(`${environment.apiUrl}/distance`, data, {
+            headers: {
+                "API_KEY": environment.apikey
+            }
+        }).toPromise().then((res:any) => {
             console.log(res);
             const distance = (res.rows[0].elements[0].distance.value/1000).toFixed(1);
             const duration = res.rows[0].elements[0].duration.text;
@@ -157,7 +173,11 @@ export class CommonService {
         console.log(image);
         const compressedImage = await this.compressImage(image);
         console.log(compressedImage);
-        return this.http.post(`${environment.apiUrl}/add-image`, { data: compressedImage, name: `${spot.rowKey}-${Date.now().toString()}` }).toPromise().then((res: any) => {
+        return this.http.post(`${environment.apiUrl}/add-image`, { data: compressedImage, name: `${spot.rowKey}-${Date.now().toString()}` }, {
+            headers: {
+                "API_KEY": environment.apikey
+            }
+        }).toPromise().then((res: any) => {
             console.log(res);
             if (res && res.result) {
                 console.log(spot.imgUrls);

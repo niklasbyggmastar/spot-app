@@ -45,7 +45,12 @@ export class Tab2Page {
             this.spot = await this.common.uploadImage(this.spot, this.image);
 		}
         console.log(this.spot);
-        this.http.post(`${environment.apiUrl}/update`, this.spot).toPromise().then((res: any) => {
+        this.http.post(`${environment.apiUrl}/update`, this.spot,
+		{
+			headers: {
+				"API_KEY": environment.apikey
+			}
+		}).toPromise().then((res: any) => {
             console.log(res);
 			this.common.router.navigate(["details", this.spot.rowKey], { state: { data: this.spot, refreshList: true } });
 			this.resetForm();
@@ -64,7 +69,11 @@ export class Tab2Page {
 	}
 
 	async getCoordinatesFromAddress() {
-		return this.http.post(`${environment.apiUrl}/get-coordinates`, {address: this.address}).toPromise().then((res: any) => {
+		return this.http.post(`${environment.apiUrl}/get-coordinates`, {address: this.address}, {
+			headers: {
+				"API_KEY": environment.apikey
+			}
+		}).toPromise().then((res: any) => {
 			console.log(res);
 			if (res.results && res.results[0].geometry) {
 				this.spot.lat = res.results[0].geometry.location.lat.toFixed(this.common.numberOfDecimalsInCoordinates).toString();
